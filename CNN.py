@@ -16,3 +16,7 @@ class NeuralNetwork(nn.Module):
         x = F.relu(self.conv2)
         return x
 
+Model = NeuralNetwork()
+print(Model)
+
+

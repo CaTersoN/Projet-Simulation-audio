@@ -39,6 +39,7 @@ fichiers_flac_trouves = trouver_fichiers_flac(dossier_a_explorer)
 ex1=flac_list[5]
 y_s, sr = librosa.load(ex1,sr=16000)
 
+
 '''
 # Calculer le spectrogramme
 D_n = librosa.amplitude_to_db(librosa.stft(y_n[:np.size(y_s)]), ref=np.max)
@@ -83,21 +84,20 @@ def mask (s_s,s_n) :
 # =============================================================================
 # Créer un jeu de n données
 # =============================================================================
-def create_training_set(Adr, n, SNR):
+
+def create_training_set(Adr, n, SNR, temps, sr):
     Y=[]
     D=np.zeros(n)
     specTab = []
     y_ns = np.zeros(n)
-    
     for i in range(n):
         Y.append(librosa.load(Adr[i], sr=16000)[0])
-        
+    Y=ajusteTaille(Y, temps, sr)
     if len(Y)<n:
         print("Taille de la liste inférieure à n")
         exit()
-        
     for i in range(n):
-        y_n, y_s = normalised_s(B,Y[i], SNR)
+        y_n, y_s = normalised_s(B,Y[i], SNR[i])
         y_ns = y_n + y_s
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_s = librosa.stft(y_s, n_fft = 2048, hop_length = 512)
@@ -105,8 +105,8 @@ def create_training_set(Adr, n, SNR):
         S_n_dB = librosa.amplitude_to_db(np.abs(D_n),ref=np.max)
         S_s_dB = librosa.amplitude_to_db(np.abs(D_s),ref=np.max)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB,S_s_dB,S_n_dB])
-    return specTab
+        specTab.append([S_ns_dB,D_s,D_n])
+    return specTab,Y
 
 # =============================================================================
 # Calcul des STFT
@@ -126,47 +126,67 @@ def deci (i) :
         return '0'+str(i)
     return str(i)
     
-def ajusteTaille(Y, temps):
+def ajusteTaille(Y, temps, sr):
     n_ech_voulus = sr * temps
+    Y_n=[]
+    
+    
     for sig in Y:
+        
         if len(sig) > n_ech_voulus:
-            sig = sig[:n_ech_voulus]
-        if len(sig) < n_ech_voulus:
+            sig_2 = sig[:n_ech_voulus]
+            Y_n.append(sig_2)
+            
+            
+        if len(sig) <= n_ech_voulus:
             liste_zeros = np.zeros(n_ech_voulus - len(sig))
-            sig = np.concatenate((sig, liste_zeros))
-
+            sig_2 = np.concatenate((sig, liste_zeros))
+            Y_n.append(sig_2)
+          
+    return Y_n
+    
 def list_SNR(n) : 
     l=np.linspace(-10,10,n)
     return l 
 # =============================================================================
 # Enregistrement des données
 # =============================================================================    
+
 n=10
-SNR=20
-liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR)
+SNR=list_SNR(n)
+liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR, 3, sr)
 
 dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees/'
-
+'''
 for i, fichier in enumerate(liste_spectro):
     nom_fichier = f"fichier_"+deci(i+1)+".npy"
+    nom_fichier_m = f"fichier_"+deci(i+1)+"_m"+".npy"
     chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
+    chemin_fichier_m = os.path.join(dossier_de_destination, nom_fichier_m)
+    fichier_m=mask(liste_spectro[i][1],liste_spectro[i][2])
     np.save(chemin_fichier, fichier)
+    np.save(chemin_fichier_m, fichier_m)
 
 
 liste_de_fichiers_charge = []
 liste_fichier=[]
+liste_nom=[]
 # Charger les fichiers .npy
 for fichier in os.listdir(dossier_de_destination):
     if fichier.endswith(".npy"):
         chemin_fichier = os.path.join(dossier_de_destination, fichier)
+        liste_nom.append(chemin_fichier)
         liste_fichier.append(fichier)
         
     
 liste_fichier.sort()
+liste_nom.sort()
 for fichier in liste_fichier :
     chemin_fichier = os.path.join(dossier_de_destination, fichier)
     fichier_charge = np.load(chemin_fichier)
     liste_de_fichiers_charge.append(fichier_charge)
+    
+'''
 
 
 #sd.play(y_s, sr)

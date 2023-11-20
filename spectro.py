@@ -77,7 +77,7 @@ def mask (s_s,s_n) :
     M=np.zeros((n,m))
     for i in range (n) :
         for j in range (m) :
-            if np.abs(s_s[i,j])**2>np.abs(s_n[i,j])**2 :
+            if np.abs(s_s[i][j])**2>np.abs(s_n[i][j])**2 :
                 M[i,j]=1
     return M
 
@@ -106,7 +106,7 @@ def create_training_set(Adr, n, SNR, temps, sr):
         S_s_dB = librosa.amplitude_to_db(np.abs(D_s),ref=np.max)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
         specTab.append([S_ns_dB,D_s,D_n])
-    return specTab,Y
+    return specTab
 
 # =============================================================================
 # Calcul des STFT
@@ -151,13 +151,13 @@ def list_SNR(n) :
 # =============================================================================
 # Enregistrement des données
 # =============================================================================    
-
-n=10
+'''
+n=1200
 SNR=list_SNR(n)
 liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR, 3, sr)
 
 dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees/'
-'''
+
 for i, fichier in enumerate(liste_spectro):
     nom_fichier = f"fichier_"+deci(i+1)+".npy"
     nom_fichier_m = f"fichier_"+deci(i+1)+"_m"+".npy"
@@ -167,6 +167,8 @@ for i, fichier in enumerate(liste_spectro):
     np.save(chemin_fichier, fichier)
     np.save(chemin_fichier_m, fichier_m)
 
+'''
+dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]
@@ -178,15 +180,16 @@ for fichier in os.listdir(dossier_de_destination):
         liste_nom.append(chemin_fichier)
         liste_fichier.append(fichier)
         
-    
+
 liste_fichier.sort()
 liste_nom.sort()
 for fichier in liste_fichier :
     chemin_fichier = os.path.join(dossier_de_destination, fichier)
+    print(fichier)
     fichier_charge = np.load(chemin_fichier)
     liste_de_fichiers_charge.append(fichier_charge)
     
-'''
+
 
 
 #sd.play(y_s, sr)

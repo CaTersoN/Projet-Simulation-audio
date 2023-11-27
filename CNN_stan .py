@@ -12,64 +12,9 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import os
 import numpy as np
-'''
+import matplotlib.pyplot as plt
+import librosa
 
-class MaskingNetwork(nn.Module):
-    def __init__(self):
-        super(MaskingNetwork, self).__init__()
-        
-        # Couches de convolution
-        self.conv1 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1)
-        
-        # Couches entièrement connectées
-        self.fc1 = nn.Linear(64 * (taille_spectrogramme//4) * (taille_spectrogramme//4), 128)
-        self.fc2 = nn.Linear(128, taille_spectrogramme * taille_spectrogramme)  # Output: masque binaire de même taille que le spectrogramme
-    
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = x.view(-1, 64 * (taille_spectrogramme//4) * (taille_spectrogramme//4))
-        x = F.relu(self.fc1(x))
-        x = torch.sigmoid(self.fc2(x))  # Utilisation de sigmoid pour obtenir des valeurs entre 0 et 1 pour le masque
-        return x
-
-criterion = nn.BCELoss()
-
-'''
-
-'''
-class SpeechEnhancementModel(nn.Module):
-    def __init__(self):
-        super(SpeechEnhancementModel, self).__init__()
-
-        # Encodeur
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
-            nn.ReLU()
-        )
-
-        # Décodeur
-        self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.Sigmoid()  # Utilisation de sigmoid pour obtenir des valeurs entre 0 et 1 pour le masque
-        )
-
-    def forward(self, x):
-        x = self.encoder(x)
-        print(x.size())
-        x = self.decoder(x)
-        print(x.size())
-        return x
-'''
 
 class SpeechEnhancementModel(nn.Module):
     def __init__(self):
@@ -81,26 +26,19 @@ class SpeechEnhancementModel(nn.Module):
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            
         )
 
         # Décodeur
         self.decoder = nn.Sequential(
-            
-            
-            
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=1, padding=1, output_padding=0),
             nn.ReLU(),
             nn.ConvTranspose2d(32, 1, kernel_size=3, stride=1, padding=1, output_padding=0),
             nn.Sigmoid()  # Utilisation de sigmoid pour obtenir des valeurs entre 0 et 1 pour le masque
-            
         )
 
     def forward(self, x):
         x = self.encoder(x)
-        print(x.size())
         x = self.decoder(x)
-        print(x.size())
         return x
 
 criterion = nn.BCELoss()
@@ -119,8 +57,7 @@ class SpeechDataset(Dataset):
 
         return input_spec, target_mask
 
-# Supposons que vous avez un DataLoader pour votre base de données
-# train_loader = ...
+
 
 model = SpeechEnhancementModel()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -129,7 +66,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # Exemple d'utilisation
 # input_data et target_masks sont vos données et masques binaires respectivement
-dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees2/'
+dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]
@@ -161,7 +98,7 @@ dataset = SpeechDataset(input_data, target_masks)
 train_loader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 num_epochs = 4
-
+'''
 for epoch in range(num_epochs):
     for inputs, masks in train_loader:
         optimizer.zero_grad()
@@ -171,11 +108,30 @@ for epoch in range(num_epochs):
         optimizer.step()
 
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
+    
+torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
+'''
+model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth'))
+
+model.eval()
 
 
+def display_spectro_output(input1) :
+    output=model(torch.from_numpy(input1).unsqueeze(0).float())
+    output=output.detach().numpy()
+    sr=16000
+    plt.figure(figsize=(10, 6))
+    librosa.display.specshow(output[0], sr=sr, x_axis='time')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title('Spectrogramme')
+    plt.show()
 
 
-
-
-
+def display_spectro(input1) :
+    sr=16000
+    plt.figure(figsize=(10, 6))
+    librosa.display.specshow(input1, sr=sr, x_axis='time')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title('Spectrogramme')
+    plt.show()
 

@@ -68,6 +68,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 # dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'
 dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/0_100/'
 
+
 liste_de_fichiers_charge = []
 liste_fichier=[]
 liste_nom=[]

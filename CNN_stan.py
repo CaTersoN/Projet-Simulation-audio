@@ -67,7 +67,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 # Exemple d'utilisation
 # input_data et target_masks sont vos données et masques binaires respectivement
 # dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'
-dossier_de_destination = '/base de donnees/'
+dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/base de donnees/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]
@@ -111,9 +111,9 @@ for epoch in range(num_epochs):
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
     
 # torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
-torch.save(model.state_dict(), '/poids_du_modele.pth')
+torch.save(model.state_dict(), '/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth')
 # model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth'))
-model.load_state_dict(torch.load('/poids_du_modele.pth'))
+model.load_state_dict(torch.load('/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth'))
 
 model.eval()
 

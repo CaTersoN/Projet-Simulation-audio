@@ -97,7 +97,7 @@ target_masks=liste_de_masque
 dataset = SpeechDataset(input_data, target_masks)
 train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
 
-num_epochs = 4
+num_epochs = 50
 loss_list=[]
 for epoch in range(num_epochs):
     for inputs, masks in train_loader:

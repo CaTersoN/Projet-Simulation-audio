@@ -13,7 +13,7 @@ from torch.utils.data import Dataset, DataLoader
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import librosa
+#import librosa
 
 
 class SpeechEnhancementModel(nn.Module):
@@ -118,22 +118,22 @@ model.load_state_dict(torch.load('/poids_du_modele.pth'))
 model.eval()
 
 
-def display_spectro_output(input1) :
-    output=model(torch.from_numpy(input1).unsqueeze(0).float())
-    output=output.detach().numpy()
-    sr=16000
-    plt.figure(figsize=(10, 6))
-    librosa.display.specshow(output[0], sr=sr, x_axis='time')
-    plt.colorbar()
-    plt.title('Mask')
-    plt.show()
+# def display_spectro_output(input1) :
+#     output=model(torch.from_numpy(input1).unsqueeze(0).float())
+#     output=output.detach().numpy()
+#     sr=16000
+#     plt.figure(figsize=(10, 6))
+#     librosa.display.specshow(output[0], sr=sr, x_axis='time')
+#     plt.colorbar()
+#     plt.title('Mask')
+#     plt.show()
 
 
-def display_spectro(input1) :
-    sr=16000
-    plt.figure(figsize=(10, 6))
-    librosa.display.specshow(input1, sr=sr, x_axis='time')
-    plt.colorbar(format='%+2.0f dB')
-    plt.title('Spectrogramme')
-    plt.show()
+# def display_spectro(input1) :
+#     sr=16000
+#     plt.figure(figsize=(10, 6))
+#     librosa.display.specshow(input1, sr=sr, x_axis='time')
+#     plt.colorbar(format='%+2.0f dB')
+#     plt.title('Spectrogramme')
+#     plt.show()
 

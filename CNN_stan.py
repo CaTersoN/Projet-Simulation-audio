@@ -64,10 +64,9 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 
-# Exemple d'utilisation
-# input_data et target_masks sont vos données et masques binaires respectivement
+
 # dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'
-dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/base de donnees/'
+dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/base de donnees_10/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]

@@ -152,7 +152,7 @@ def list_SNR(n) :
 # Enregistrement des données
 # =============================================================================    
 '''
-n=1200
+n=100
 SNR=list_SNR(n)
 liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR, 3, sr)
 
@@ -166,9 +166,9 @@ for i, fichier in enumerate(liste_spectro):
     fichier_m=mask(liste_spectro[i][1],liste_spectro[i][2])
     np.save(chemin_fichier, fichier)
     np.save(chemin_fichier_m, fichier_m)
-
 '''
-dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees/'
+
+dossier_de_destination = '/Users/stani1/Documents/Phelma/3A/Projet simulation logicielle/base de donnees3/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]

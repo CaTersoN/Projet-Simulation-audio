@@ -57,7 +57,8 @@ class SpeechDataset(Dataset):
 
         return input_spec, target_mask
 
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
 model = SpeechEnhancementModel()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -102,6 +103,7 @@ num_epochs = 50
 loss_list=[]
 for epoch in range(num_epochs):
     for inputs, masks in train_loader:
+        inputs, masks = inputs.to(device), masks.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
         loss = criterion(outputs, masks)

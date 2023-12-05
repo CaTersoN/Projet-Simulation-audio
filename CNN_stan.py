@@ -57,13 +57,13 @@ class SpeechDataset(Dataset):
 
         return input_spec, target_mask
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+
 
 model = SpeechEnhancementModel()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
 
 # dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'

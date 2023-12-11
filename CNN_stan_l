@@ -74,8 +74,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # Exemple d'utilisation
 # input_data et target_masks sont vos données et masques binaires respectivement
-dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_C/'
-# dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/base de donnees/'
+dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/0_100/'
+# dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/0_100/'
 
 liste_de_fichiers_charge = []
 liste_fichier=[]
@@ -106,19 +106,19 @@ target_masks=liste_de_masque
 dataset = SpeechDataset(input_data, target_masks)
 train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
 
-num_epochs = 4
-loss_list=[]
-for epoch in range(num_epochs):
-    for inputs, masks in train_loader:
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, masks)
-        loss.backward()
-        optimizer.step()
-        loss_list.append(loss.item())
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
+# num_epochs = 4
+# loss_list=[]
+# for epoch in range(num_epochs):
+#     for inputs, masks in train_loader:
+#         optimizer.zero_grad()
+#         outputs = model(inputs)
+#         loss = criterion(outputs, masks)
+#         loss.backward()
+#         optimizer.step()
+#         loss_list.append(loss.item())
+#     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
     
-torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
+# torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
 # torch.save(model.state_dict(), '/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth')
 model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth'))
 # model.load_state_dict(torch.load('/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth'))

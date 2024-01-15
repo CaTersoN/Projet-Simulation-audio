@@ -20,8 +20,10 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import os
 import numpy as np
+from IPython.display import Audio, display
 import matplotlib.pyplot as plt
 import librosa
+import sounddevice as sd
 
 
 class SpeechEnhancementModel(nn.Module):
@@ -99,6 +101,7 @@ for fichier in liste_fichier :
         liste_de_masque.append(np.load(chemin_fichier))
     else : 
         liste_de_spectro.append(np.load(chemin_fichier)[0])
+    
    
 input_data=np.real(liste_de_spectro[400:])
 target_masks=liste_de_masque
@@ -120,10 +123,19 @@ train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
     
 # torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
 # torch.save(model.state_dict(), '/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth')
-model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth'))
+model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth',map_location=torch.device('cpu')))
 # model.load_state_dict(torch.load('/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth'))
 
 model.eval()
+
+def seuillage(M) :
+    n,m=np.shape(M)
+    m_s=np.zeros((n,m))
+    for i in range (n) :
+        for j in range (m) :
+            if M[i,j]>0.48 :
+                m_s[i,j]=1
+    return m_s
 
 
 def display_spectro_output(input1) :
@@ -131,7 +143,7 @@ def display_spectro_output(input1) :
     output=output.detach().numpy()
     sr=16000
     plt.figure(figsize=(10, 6))
-    librosa.display.specshow(output[0], sr=sr, x_axis='time')
+    librosa.display.specshow(seuillage(output[0]), sr=sr, x_axis='time')
     plt.colorbar()
     plt.title('Mask')
     plt.show()
@@ -144,4 +156,26 @@ def display_spectro(input1) :
     plt.colorbar(format='%+2.0f dB')
     plt.title('Spectrogramme')
     plt.show()
+    
+def ecoute_denoise (spectro,sr) :
+    output=model(torch.from_numpy(spectro).unsqueeze(0).float())
+    output=output.detach().numpy()
+    mask=seuillage(output[0])
+    spectro_de=spectro*mask
+    ecoute(spectro_de,sr)
 
+'''
+def ecoute_real_mak (i,sr) :
+    spectro=liste_de_spectro[i]
+    mask=liste_de_masque[i]
+    spectro_de=
+    ecoute(spectro_de,sr)
+    
+def ecoute (spectro,sr) :
+    "spectro=librosa.db_to_amplitude(spectro)"
+    y=librosa.istft(spectro, n_fft = 2048, hop_length = 512)
+    y=y*10
+    plt.plot(y)
+    sd.play(y, sr)
+    sd.wait()
+    '''

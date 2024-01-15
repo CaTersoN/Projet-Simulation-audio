@@ -1,0 +1,79 @@
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
+import numpy as np
+import glob
+import sounddevice as sd
+import os
+import random as rd
+
+def ajusteTaille(Y, temps, sr):
+    n_ech_voulus = sr * temps
+    if len(Y) > n_ech_voulus:
+        sig_2 = Y[:n_ech_voulus]
+        Y = sig_2
+        
+        
+    if len(Y) <= n_ech_voulus:
+        liste_zeros = np.zeros(n_ech_voulus - len(Y))
+        sig_2 = np.concatenate((Y, liste_zeros))
+        Y = sig_2
+
+def normalised_s(y_n,y_s,SNR) :
+    d_n=len(y_n)
+    d_s=len(y_s)
+    if d_n>=d_s :
+        i=rd.randint(0,d_n-d_s)
+        y_n=y_n[i:i+d_s]
+    else :
+        i=rd.randint(0,d_s-d_n)
+        y_s=y_s[i:i+d_n]
+    A_n=np.max(y_n)-np.min(y_n)
+    A_s=np.max(y_s)-np.min(y_s)
+    y_n=y_n/A_n
+    y_s=y_s/A_s
+    A_s=10**(SNR/20)
+    y_s=y_s*A_s
+    return (y_n,y_s)
+
+def mask (s_s,s_n) :
+    n=len(s_s)
+    m=len(s_s[0])
+    M=np.zeros((n,m))
+    for i in range (n) :
+        for j in range (m) :
+            if np.abs(s_s[i][j])**2>np.abs(s_n[i][j])**2 :
+                M[i,j]=1
+    return M
+
+
+noise_path = 'babble_16k.wav'
+y_n, sr = librosa.load(noise_path,sr=16000)
+
+speech_path='LibriSpeech/dev-clean/5694/64038/5694-64038-0024.flac'
+print("test")
+y_s , sr = librosa.load(speech_path, sr=16000)
+print("test")
+ajusteTaille(y_s, 3, sr)
+y_n, y_s = normalised_s(y_n, y_s, 40)
+print("test3")
+y_ns = y_n + y_s
+D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
+D_s = librosa.stft(y_s, n_fft = 2048, hop_length = 512)
+D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
+S_n_dB = librosa.amplitude_to_db(np.abs(D_n),ref=np.max)
+S_s_dB = librosa.amplitude_to_db(np.abs(D_s),ref=np.max)
+S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
+L = [S_ns_dB, D_s, D_n]
+
+dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/0_100'
+nom_fichier = f"fichier_"+"1201"+".npy"
+nom_fichier_m = f"fichier_"+"1201"+"_m"+".npy"
+print("1")
+chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
+chemin_fichier_m = os.path.join(dossier_de_destination, nom_fichier_m)
+print("OK")
+fichier_m=mask(L[1],L[2])
+print("OK")
+np.save(chemin_fichier, L)
+np.save(chemin_fichier_m, fichier_m)

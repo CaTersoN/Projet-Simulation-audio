@@ -93,6 +93,45 @@ for fichier in liste_fichier :
     else : 
         liste_de_spectro.append(np.load(chemin_fichier)[0])
    
+
+dossier_de_destination_test = '/user/3/domers/traitement_parole/Projet-Simulation-audio/base de donnees test/'
+# dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/0_100/'
+
+liste_de_fichiers_charge_t = []
+liste_fichier_t=[]
+liste_nom_t=[]
+# Charger les fichiers .npy
+for fichier in os.listdir(dossier_de_destination_test):
+    if fichier.endswith(".npy"):
+        chemin_fichier = os.path.join(dossier_de_destination_test, fichier)
+        liste_nom_t.append(chemin_fichier)
+        liste_fichier_t.append(fichier)
+        
+
+liste_fichier_t.sort()
+liste_nom_t.sort()
+liste_de_spectro_t=[]
+liste_de_masque_t=[]
+for fichier in liste_fichier_t :
+    chemin_fichier = os.path.join(dossier_de_destination_test, fichier)
+    #print(fichier)
+    if fichier[-5]=='m' :
+        liste_de_masque_t.append(np.load(chemin_fichier))
+    else : 
+        liste_de_spectro_t.append(np.load(chemin_fichier)[0])
+   
+input_data_t=np.real(liste_de_spectro_t)
+target_masks_t=liste_de_masque_t
+
+#input_data=np.real(liste_de_spectro[900:])
+#target_masks=liste_de_masque
+test_dataset = SpeechDataset(input_data_t, target_masks_t)
+#dataset = SpeechDataset(input_data, target_masks)
+dataset=np.real(liste_de_spectro[900:])
+
+#train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=40, shuffle=False)
+
 input_data=np.real(liste_de_spectro)
 target_masks=liste_de_masque
 
@@ -100,22 +139,42 @@ dataset = SpeechDataset(input_data, target_masks)
 train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
 
 num_epochs = 50
-loss_list=[]
+loss_list_train=[]
+loss_list_test=[]
 for epoch in range(num_epochs):
     for inputs, masks in train_loader:
         inputs, masks = inputs.to(device), masks.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
-        loss = criterion(outputs, masks)
-        loss.backward()
+        loss_train = criterion(outputs, masks)
+        loss_train.backward()
         optimizer.step()
-        loss_list.append(loss.item())
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
+    loss_list_train.append(loss_train.item())
+        
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss_train.item()}')
+    model.eval()
+    total_loss_test = 0.0
+    with torch.no_grad():
+        for inputs, masks in test_loader:
+            inputs, masks = inputs.to(device), masks.to(device)
+            outputs = model(inputs)
+            loss_test = criterion(outputs, masks)
+            total_loss_test += loss_test.item()
+
+    avg_loss_test = total_loss_test / len(test_loader)
+    loss_list_test.append(avg_loss_test)
     
 # torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
 torch.save(model.state_dict(), '/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth')
+
+chemin_loss_train='/user/3/domers/traitement_parole/Projet-Simulation-audio/loss_train.npy'
+np.save(chemin_loss_train,loss_list_train)
+
+chemin_loss_test='/user/3/domers/traitement_parole/Projet-Simulation-audio/loss_test.npy'
+np.save(chemin_loss_test,loss_list_test)
 # model.load_state_dict(torch.load('/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth'))
 model.load_state_dict(torch.load('/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth'))
+
 
 model.eval()
 

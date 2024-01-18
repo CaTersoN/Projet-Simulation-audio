@@ -73,38 +73,42 @@ model = SpeechEnhancementModel()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
-dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/0_100'
-# dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/0_100/'
+dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/Spectro_amp'
+dossier_de_destination_2 = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/BDD_train'
 
-liste_de_fichiers_charge = []
 liste_fichier=[]
-liste_nom=[]
+liste_fichier_2=[]
+
 # Charger les fichiers .npy
 for fichier in os.listdir(dossier_de_destination):
     if fichier.endswith(".npy"):
-        chemin_fichier = os.path.join(dossier_de_destination, fichier)
-        liste_nom.append(chemin_fichier)
         liste_fichier.append(fichier)
-        
 
-liste_fichier.sort()
-liste_nom.sort()
+for fichier in os.listdir(dossier_de_destination_2):
+    if fichier.endswith(".npy"):
+        liste_fichier_2.append(fichier)
+
 liste_de_spectro=[]
+liste_de_spectro_dB=[]
 liste_de_masque=[]
+
 for fichier in liste_fichier :
     chemin_fichier = os.path.join(dossier_de_destination, fichier)
-    #print(fichier)
+    liste_de_spectro.append(np.load(chemin_fichier))
+
+for fichier in liste_fichier_2 :
+    chemin_fichier = os.path.join(dossier_de_destination_2, fichier)
     if fichier[-5]=='m' :
         liste_de_masque.append(np.load(chemin_fichier))
     else : 
-        liste_de_spectro.append(np.load(chemin_fichier)[0])
-    
-   
-input_data=np.real(liste_de_spectro[400:])
-target_masks=liste_de_masque
+        liste_de_spectro_dB.append(np.load(chemin_fichier))
 
-dataset = SpeechDataset(input_data, target_masks)
-train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
+# input_data=np.real(liste_de_spectro[400:])
+# target_masks=liste_de_masque
+
+# dataset = SpeechDataset(input_data, target_masks)
+# train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
+
 
 # num_epochs = 4
 # loss_list=[]
@@ -120,7 +124,7 @@ train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
     
 # torch.save(model.state_dict(), '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/poids_du_modele.pth')
 # torch.save(model.state_dict(), '/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth')
-model.load_state_dict(torch.load('poids_du_modele.pth',map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('poids_du_modele_200.pth',map_location=torch.device('cpu')))
 # model.load_state_dict(torch.load('/user/3/domers/traitement_parole/Projet-Simulation-audio/poids_du_modele.pth'))
 
 model.eval()
@@ -148,30 +152,44 @@ def display_spectro_output(input1) :
 
 def display_spectro(input1) :
     sr=16000
-    plt.figure(figsize=(10, 6))
-    librosa.display.specshow(input1, sr=sr, x_axis='time')
+    plt.figure(figsize=(5, 5))
+    librosa.display.specshow(input1, sr=sr, x_axis='time',  y_axis='linear')
     plt.colorbar(format='%+2.0f dB')
     plt.title('Spectrogramme')
     plt.show()
-    
-def ecoute_denoise (spectro,sr) :
-    output=model(torch.from_numpy(spectro).unsqueeze(0).float())
+
+def display_mask(input1) :
+    sr=16000
+    plt.figure(figsize=(3, 3))
+    librosa.display.specshow(input1, sr=sr, x_axis='time', y_axis='linear')
+    plt.title('Masque réel')
+    plt.show()
+
+def ecoute_denoise(i,sr) :
+    output=model(torch.from_numpy(liste_de_spectro_dB[i]).unsqueeze(0).float())
     output=output.detach().numpy()
     mask=seuillage(output[0])
-    spectro_de=spectro*mask
+    print("ok")
+    res= liste_de_spectro[i] * mask
+    display_spectro(liste_de_spectro[i])
+    display_spectro(res)
+    ecoute(res, sr, i)
+    print("okfin")
 
-
-"""def ecoute_real_mak (i,sr) :
-    spectro=liste_de_spectro[i]
-    mask=liste_de_masque[i]
-    spectro_de=
-    ecoute(spectro_de,sr)"""
-    
-"""def ecoute (spectro,sr) :
-    "spectro=librosa.db_to_amplitude(spectro)"
+def ecoute(spectro,sr, i) :
+    y_init = librosa.istft(liste_de_spectro[i], n_fft = 2048, hop_length = 512)
+    plt.plot(y_init), plt.title("signal bruité"), plt.ylabel("Amplitude"), plt.xlabel("")
+    plt.show()
     y=librosa.istft(spectro, n_fft = 2048, hop_length = 512)
-    y=y*10
-    plt.plot(y)
+    plt.plot(y), plt.title("signal débruité"), plt.ylabel("Amplitude")
+    plt.show()
     sd.play(y, sr)
-    sd.wait()"""
+    sd.wait()
+
+#display_mask(liste_de_masque[-1])
+#print(len(liste_de_spectro))
+#display_spectro(liste_de_spectro[0])
+
+#ecoute(liste_de_spectro[600], 16000)
+ecoute_denoise(300, 16000)
 

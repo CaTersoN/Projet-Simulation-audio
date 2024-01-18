@@ -80,7 +80,7 @@ def create_training_set(Adr, n, SNR, temps, sr):
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB, D_s, D_n, D_ns])
+        specTab.append([D_ns])
     return specTab
 
 def create_test_set(Adr, n, SNR, temps, sr):
@@ -100,7 +100,7 @@ def create_test_set(Adr, n, SNR, temps, sr):
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB, D_s, D_n])
+        specTab.append([S_ns_dB, D_s, D_ns])
     return specTab
 
 
@@ -168,7 +168,4 @@ dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/Spe
 for i, fichier in enumerate(liste_spectro):
     nom_fichier = f"spectro_"+deci(i+1)+".npy"
     chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
-    np.save(chemin_fichier, fichier)
-
-#sd.play(y_s, sr)
-#sd.wait()
+    np.save(chemin_fichier, fichier[0])

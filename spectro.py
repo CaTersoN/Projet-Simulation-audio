@@ -28,12 +28,9 @@ def trouver_fichiers_flac(dossier):
                 fichiers_flac.append(chemin_fichier)
     return fichiers_flac
 
-print("test")
-# Remplacez '/chemin/du/dossier' par le chemin réel du dossier dans lequel vous souhaitez rechercher les fichiers .flac
 dossier_a_explorer = 'C:/Users/hariz/Desktop/PJA/LibriSpeech/dev-clean/'
 fichiers_flac_trouves = trouver_fichiers_flac(dossier_a_explorer)
 
-print("test")
 def normalised_s(y_n,y_s,SNR) :
     d_n=len(y_n)
     d_s=len(y_s)
@@ -83,7 +80,7 @@ def create_training_set(Adr, n, SNR, temps, sr):
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB])
+        specTab.append([S_ns_dB, D_s, D_n, D_ns])
     return specTab
 
 def create_test_set(Adr, n, SNR, temps, sr):
@@ -103,7 +100,7 @@ def create_test_set(Adr, n, SNR, temps, sr):
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB])
+        specTab.append([S_ns_dB, D_s, D_n])
     return specTab
 
 
@@ -151,21 +148,27 @@ def list_SNR(n) :
 # Enregistrement des données
 # =============================================================================    
 print('TEST')
-n=100
+n=1200
 SNR=list_SNR(n)
-liste_spectro=create_test_set(fichiers_flac_trouves, n, SNR, 3, sr)
+liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR, 3, sr)
+#liste_spectro=create_test_set(fichiers_flac_trouves, n, SNR, 3, sr)
+dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/Spectro_amp'
 
-dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/base '
+
+# for i, fichier in enumerate(liste_spectro):
+#     nom_fichier = f"fichier_"+deci(i+1)+".npy"
+#     nom_fichier_m = f"fichier_"+deci(i+1)+"_m"+".npy"
+#     chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
+#     chemin_fichier_m = os.path.join(dossier_de_destination, nom_fichier_m)
+#     fichier_m=mask(liste_spectro[i][1],liste_spectro[i][2])
+    
+#     np.save(chemin_fichier, fichier[0])
+#     np.save(chemin_fichier_m, fichier_m)
 
 for i, fichier in enumerate(liste_spectro):
-    nom_fichier = f"fichier_"+deci(i+1)+".npy"
-    nom_fichier_m = f"fichier_"+deci(i+1)+"_m"+".npy"
+    nom_fichier = f"spectro_"+deci(i+1)+".npy"
     chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
-    chemin_fichier_m = os.path.join(dossier_de_destination, nom_fichier_m)
-    fichier_m=mask(liste_spectro[i][1],liste_spectro[i][2])
-    np.save(chemin_fichier, fichier[0])
-    np.save(chemin_fichier_m, fichier_m)
-
+    np.save(chemin_fichier, fichier)
 
 #sd.play(y_s, sr)
 #sd.wait()

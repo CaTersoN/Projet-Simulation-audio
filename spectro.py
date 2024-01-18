@@ -83,8 +83,29 @@ def create_training_set(Adr, n, SNR, temps, sr):
         D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
         D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
         S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
-        specTab.append([S_ns_dB,D_s,D_n,D_ns])
+        specTab.append([S_ns_dB])
     return specTab
+
+def create_test_set(Adr, n, SNR, temps, sr):
+    Y=[]
+    specTab = []
+    y_ns = np.zeros(n)
+    for i in range(n):
+        Y.append(librosa.load(Adr[-i], sr=16000)[0])
+    Y=ajusteTaille(Y, temps, sr)
+    if len(Y)<n:
+        print("Taille de la liste inférieure à n")
+        exit()
+    for i in range(n):
+        y_n, y_s = normalised_s(B,Y[i], SNR[i])
+        y_ns = y_n + y_s
+        D_s = librosa.stft(y_s, n_fft = 2048, hop_length = 512)
+        D_n = librosa.stft(y_n, n_fft = 2048, hop_length = 512)
+        D_ns = librosa.stft(y_ns, n_fft = 2048, hop_length = 512)
+        S_ns_dB = librosa.amplitude_to_db(np.abs(D_ns),ref=np.max)
+        specTab.append([S_ns_dB])
+    return specTab
+
 
 # =============================================================================
 # Calcul des STFT
@@ -130,11 +151,11 @@ def list_SNR(n) :
 # Enregistrement des données
 # =============================================================================    
 print('TEST')
-n=1200
+n=100
 SNR=list_SNR(n)
-liste_spectro=create_training_set(fichiers_flac_trouves, n, SNR, 3, sr)
+liste_spectro=create_test_set(fichiers_flac_trouves, n, SNR, 3, sr)
 
-dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/BDD_train'
+dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/base '
 
 for i, fichier in enumerate(liste_spectro):
     nom_fichier = f"fichier_"+deci(i+1)+".npy"
@@ -142,7 +163,7 @@ for i, fichier in enumerate(liste_spectro):
     chemin_fichier = os.path.join(dossier_de_destination, nom_fichier)
     chemin_fichier_m = os.path.join(dossier_de_destination, nom_fichier_m)
     fichier_m=mask(liste_spectro[i][1],liste_spectro[i][2])
-    np.save(chemin_fichier, fichier)
+    np.save(chemin_fichier, fichier[0])
     np.save(chemin_fichier_m, fichier_m)
 
 

@@ -40,8 +40,8 @@ def normalised_s(y_n,y_s,SNR) :
     else :
         i=rd.randint(0,d_s-d_n)
         y_s=y_s[i:i+d_n]
-    A_n=np.max(y_n)-np.min(y_n)
-    A_s=np.max(y_s)-np.min(y_s)
+    A_n=max(np.max(y_n), np.min(y_n))
+    A_s=max(np.max(y_s), np.min(y_s))
     y_n = y_n / A_n
     y_s = y_s / A_s
     A=10**(SNR/20)

@@ -59,7 +59,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 dossier_de_destination = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/Spectro_amp'
-dossier_de_destination_2 = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/BDD_train'
+dossier_de_destination_2 = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/base de donnees test'
 
 liste_fichier=[]
 liste_fichier_2=[]
@@ -157,26 +157,26 @@ def ecoute_denoise(i,sr) :
     output=output.detach().numpy()
     mask=seuillage(output[0])
     print("ok")
-    res= liste_de_spectro[i] * mask
-    display_spectro(liste_de_spectro[i])
+    res= liste_de_spectro_dB[i] * mask
+    #display_spectro(liste_de_spectro[i])
     display_spectro(res)
     ecoute(res, sr, i)
     print("okfin")
 
 def ecoute(spectro,sr, i) :
-    y_init = librosa.istft(liste_de_spectro[i], n_fft = 2048, hop_length = 512)
-    plt.plot(y_init), plt.title("signal bruité"), plt.ylabel("Amplitude"), plt.xlabel("temps échantilloné")
-    plt.show()
+    # y_init = librosa.istft(liste_de_spectro[i], n_fft = 2048, hop_length = 512)
+    # plt.plot(y_init), plt.title("signal bruité"), plt.ylabel("Amplitude"), plt.xlabel("temps échantilloné")
+    # plt.show()
     y=librosa.istft(spectro, n_fft = 2048, hop_length = 512)
     plt.plot(y), plt.title("signal débruité"), plt.ylabel("Amplitude"), plt.xlabel("temps échantilloné")
     plt.show()
-    sd.play(y, sr)
-    sd.wait()
+    # sd.play(y, sr)
+    # sd.wait()
 
 #display_mask(liste_de_masque[-1])
 #print(len(liste_de_spectro))
 #display_spectro(liste_de_spectro[0])
 
 #ecoute(liste_de_spectro[600], 16000)
-ecoute_denoise(1199, 16000)
+ecoute_denoise(0, 16000)
 

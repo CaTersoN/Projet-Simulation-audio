@@ -67,7 +67,7 @@ model.to(device)
 
 
 # dossier_de_destination = '/Users/stani1/Documents/GitHub/Projet-Simulation-audio/base de donnees_10/'
-dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/0_100/'
+dossier_de_destination = '/user/3/domers/traitement_parole/Projet-Simulation-audio/BDD_train/'
 
 
 liste_de_fichiers_charge = []

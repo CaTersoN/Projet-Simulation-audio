@@ -127,7 +127,7 @@ target_masks_t=liste_de_masque_t
 #target_masks=liste_de_masque
 test_dataset = SpeechDataset(input_data_t, target_masks_t)
 #dataset = SpeechDataset(input_data, target_masks)
-dataset=np.real(liste_de_spectro[900:])
+#dataset=np.real(liste_de_spectro)
 
 #train_loader = DataLoader(dataset, batch_size=40, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=40, shuffle=False)

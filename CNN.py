@@ -1,18 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Dec  4 15:52:45 2023
-
-@author: stani1
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 13 14:51:49 2023
-
-@author: stani1
-"""
 
 import torch
 import torch.nn as nn
@@ -30,7 +17,6 @@ class SpeechEnhancementModel(nn.Module):
     def __init__(self):
         super(SpeechEnhancementModel, self).__init__()
 
-        # Encodeur
         self.encoder = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
@@ -38,7 +24,6 @@ class SpeechEnhancementModel(nn.Module):
             nn.ReLU(),
         )
 
-        # Décodeur
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=1, padding=1, output_padding=0),
             nn.ReLU(),
@@ -79,7 +64,7 @@ dossier_de_destination_2 = 'C:/Users/hariz/Desktop/PJA/Projet-Simulation-audio/B
 liste_fichier=[]
 liste_fichier_2=[]
 
-# Charger les fichiers .npy
+#On charge les fichiers de notre BDD
 for fichier in os.listdir(dossier_de_destination):
     if fichier.endswith(".npy"):
         liste_fichier.append(fichier)
@@ -103,7 +88,7 @@ for fichier in liste_fichier_2 :
     else : 
         liste_de_spectro_dB.append(np.load(chemin_fichier))
 
-# input_data=np.real(liste_de_spectro[400:])
+# input_data=np.real(liste_de_spectro)
 # target_masks=liste_de_masque
 
 # dataset = SpeechDataset(input_data, target_masks)
@@ -129,6 +114,8 @@ model.load_state_dict(torch.load('poids_du_modele_200.pth',map_location=torch.de
 
 model.eval()
 
+
+#Fonction d'écoute et résultats
 def seuillage(M) :
     n,m=np.shape(M)
     m_s=np.zeros((n,m))
@@ -178,10 +165,10 @@ def ecoute_denoise(i,sr) :
 
 def ecoute(spectro,sr, i) :
     y_init = librosa.istft(liste_de_spectro[i], n_fft = 2048, hop_length = 512)
-    plt.plot(y_init), plt.title("signal bruité"), plt.ylabel("Amplitude"), plt.xlabel("")
+    plt.plot(y_init), plt.title("signal bruité"), plt.ylabel("Amplitude"), plt.xlabel("temps échantilloné")
     plt.show()
     y=librosa.istft(spectro, n_fft = 2048, hop_length = 512)
-    plt.plot(y), plt.title("signal débruité"), plt.ylabel("Amplitude")
+    plt.plot(y), plt.title("signal débruité"), plt.ylabel("Amplitude"), plt.xlabel("temps échantilloné")
     plt.show()
     sd.play(y, sr)
     sd.wait()
@@ -191,5 +178,5 @@ def ecoute(spectro,sr, i) :
 #display_spectro(liste_de_spectro[0])
 
 #ecoute(liste_de_spectro[600], 16000)
-ecoute_denoise(300, 16000)
+ecoute_denoise(1199, 16000)
 
